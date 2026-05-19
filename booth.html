@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>lovefilm — the booth</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream:     #faf6f1;
+      --rose:      #c17b82;
+      --deep-rose: #8b4a52;
+      --blush:     #f2dada;
+      --mauve:     #2a1a1f;
+      --mauve-mid: #3d2530;
+      --gold:      #d4a853;
+      --gold-light:#f0d080;
+      --dark:      #1a0f14;
+      --muted:     #9e7b7b;
+      --card-bg:   rgba(255,255,255,0.08);
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: linear-gradient(135deg, #2a1a1f 0%, #3d1f2a 40%, #2a1520 100%);
+      font-family: 'DM Sans', sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP NAV */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.8rem 1.5rem;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212,168,83,0.2);
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 1rem; }
+    .back-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(212,168,83,0.3);
+      color: var(--gold);
+      border-radius: 99px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(212,168,83,0.15); }
+    .booth-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--gold-light);
+    }
+    .layout-tabs { display: flex; gap: 0.4rem; }
+    .layout-tab {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      border-radius: 8px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.72rem;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+      letter-spacing: 0.06em;
+    }
+    .layout-tab.active, .layout-tab:hover {
+      background: var(--rose);
+      border-color: var(--rose);
+      color: white;
+    }
+
+    /* MAIN */
+    .booth-main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* LEFT TOOLS */
+    .tools-panel {
+      width: 72px;
+      background: rgba(0,0,0,0.3);
+      border-right: 1px solid rgba(212,168,83,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0;
+      gap: 0.5rem;
+    }
+    .tool-btn {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .tool-btn:hover, .tool-btn.active {
+      background: rgba(193,123,130,0.3);
+      border-color: var(--rose);
+    }
+    .tool-btn .tooltip {
+      position: absolute;
+      left: 54px;
+      background: var(--mauve-mid);
+      color: white;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      border: 1px solid rgba(255,255,255,0.1);
+      z-index: 999;
+    }
+    .tool-btn:hover .tooltip { opacity: 1; }
+    .tool-divider { width: 32px; height: 1px; background: rgba(255,255,255,0.1); margin: 0.3rem 0; }
+
+    /* CENTER */
+    .camera-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      position: relative;
+      background: radial-gradient(ellipse at center, rgba(193,123,130,0.08) 0%, transparent 70%);
+    }
+
+    /* FILM STRIP LAYOUT */
+    .film-strip-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: #1a0f14;
+      border-radius: 6px;
+      padding: 0.5rem 0.6rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .film-holes-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0 0.1rem;
+      margin: 0.25rem 0;
+    }
+    .film-holes-row span {
+      width: 9px; height: 9px;
+      background: var(--cream);
+      border-radius: 2px;
+      opacity: 0.8;
+    }
+    .frames-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      position: relative;
+    }
+    .frames-container.grid-layout {
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 320px;
+    }
+    .frames-container.duo-layout {
+      flex-direction: row;
+    }
+
+    /* Each frame slot */
+    .frame-slot {
+      position: relative;
+      overflow: hidden;
+      border-radius: 3px;
+      background: #0d0709;
+      flex-shrink: 0;
+    }
+    .frame-slot.strip-frame  { width: 200px; height: 140px; }
+    .frame-slot.grid-frame   { width: 155px; height: 155px; }
+    .frame-slot.polaroid-frame { width: 260px; height: 200px; }
+    .frame-slot.duo-frame    { width: 190px; height: 250px; }
+
+    .frame-slot video,
+    .frame-slot canvas.snap-canvas {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .frame-slot canvas.snap-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      display: none;
+    }
+    .frame-slot.captured canvas.snap-canvas { display: block; }
+    .frame-slot.captured video { display: none; }
+
+    /* Frame overlay canvas for doodles/stickers */
+    .frame-slot canvas.overlay-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      pointer-events: none;
+    }
+
+    /* Capture area */
+    .capture-area {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .capture-btn {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+      border: 3px solid rgba(255,255,255,0.3);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 0 0 6px rgba(193,123,130,0.2), 0 8px 24px rgba(0,0,0,0.4);
+      position: relative;
+    }
+    .capture-btn:hover { transform: scale(1.05); }
+    .capture-btn:active { transform: scale(0.95); }
+
+    .action-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .action-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .action-btn.active-timer { border-color: var(--rose); color: var(--rose); }
+
+    /* Shutter flash */
+    .shutter-flash {
+      position: fixed; inset: 0;
+      background: white;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      transition: opacity 0.08s;
+    }
+    .shutter-flash.flash { opacity: 0.85; }
+
+    /* Countdown overlay */
+    .countdown-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 8rem;
+      font-weight: 600;
+      color: white;
+      text-shadow: 0 0 60px rgba(193,123,130,0.9);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 200;
+      transition: opacity 0.15s;
+    }
+
+    /* Draggable sticker/text on overlay */
+    .overlay-item {
+      position: absolute;
+      cursor: grab;
+      user-select: none;
+      font-size: 2rem;
+      z-index: 50;
+      transition: transform 0.1s;
+    }
+    .overlay-item:active { cursor: grabbing; transform: scale(1.1); }
+    .overlay-item.text-item {
+      font-size: 1rem;
+      background: rgba(0,0,0,0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      width: 220px;
+      background: rgba(0,0,0,0.25);
+      border-left: 1px solid rgba(212,168,83,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 1rem 0.8rem;
+      gap: 1rem;
+    }
+    .right-panel::-webkit-scrollbar { width: 4px; }
+    .right-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+    .panel-section-title {
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .panel-section {
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding-bottom: 1rem;
+    }
+    .panel-section:last-child { border-bottom: none; }
+
+    /* Filters */
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 0.5rem 0.4rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .f-preview {
+      width: 100%; height: 30px;
+      border-radius: 5px;
+      margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #e8b4b8, #c5d5e8);
+    }
+    .f-preview.vintage { filter: sepia(0.7) contrast(1.1); }
+    .f-preview.velvet  { filter: saturate(1.5) hue-rotate(340deg); }
+    .f-preview.bloom   { filter: brightness(1.15) saturate(0.8); }
+    .f-preview.noir    { filter: grayscale(1) contrast(1.2); }
+    .filter-btn span { font-size: 0.65rem; color: rgba(255,255,255,0.6); letter-spacing: 0.05em; }
+    .filter-btn:hover, .filter-btn.active { border-color: var(--rose); background: rgba(193,123,130,0.2); }
+    .filter-btn.active span { color: var(--rose); }
+
+    /* Stickers */
+    .sticker-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.4rem; }
+    .sticker-item {
+      font-size: 1.3rem;
+      text-align: center;
+      cursor: pointer;
+      padding: 0.3rem;
+      border-radius: 8px;
+      transition: background 0.15s, transform 0.15s;
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .sticker-item:hover { background: rgba(193,123,130,0.25); transform: scale(1.15); }
+
+    /* Doodle */
+    .doodle-tools { display: flex; flex-direction: column; gap: 0.5rem; }
+    .color-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .color-dot {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+    .color-dot:hover { transform: scale(1.15); }
+    .color-dot.active { border-color: white; transform: scale(1.15); }
+    .brush-row { display: flex; gap: 0.4rem; align-items: center; }
+    .brush-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .brush-btn:hover, .brush-btn.active { border-color: var(--rose); color: var(--rose); }
+
+    /* Text */
+    .text-tool { display: flex; flex-direction: column; gap: 0.5rem; }
+    .text-input {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      outline: none;
+      width: 100%;
+    }
+    .text-input:focus { border-color: var(--rose); }
+    .font-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .font-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.6);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .font-btn:hover, .font-btn.active { border-color: var(--gold); color: var(--gold); }
+    .add-text-btn {
+      background: linear-gradient(135deg, var(--rose), var(--deep-rose));
+      border: none; border-radius: 8px;
+      padding: 0.5rem; color: white;
+      font-size: 0.75rem; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: opacity 0.2s;
+    }
+    .add-text-btn:hover { opacity: 0.85; }
+
+    /* Camera mirror fix */
+    .frame-slot video { transform: scaleX(-1); }
+
+    /* Frame themes */
+    .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .theme-btn {
+      border-radius: 10px;
+      padding: 0.5rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .theme-btn:hover, .theme-btn.active { border-color: white; transform: scale(1.03); }
+    .theme-preview {
+      width: 100%; height: 44px;
+      border-radius: 6px;
+      margin-bottom: 0.3rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; letter-spacing: 0.05em;
+    }
+    .theme-btn span { font-size: 0.65rem; color: rgba(255,255,255,0.7); letter-spacing: 0.04em; }
+
+    /* Theme styles applied to filmStrip */
+    .theme-classic   { background: #1a0f14 !important; }
+    .theme-coquette  { background: linear-gradient(135deg, #f9e0e8, #f2c4d0) !important; }
+    .theme-vintage   { background: linear-gradient(135deg, #e8d5b0, #c8a87a) !important; }
+    .theme-dreamy    { background: linear-gradient(135deg, #2d1b4e, #4a2070) !important; }
+    .theme-noir      { background: linear-gradient(135deg, #0a0a0a, #2a2a2a) !important; }
+    .theme-botanical { background: linear-gradient(135deg, #1a2e1a, #2d4a2d) !important; }
+    .theme-glam      { background: linear-gradient(135deg, #2a1f0a, #4a3510) !important; }
+    .theme-sweet     { background: linear-gradient(135deg, #8b1a1a, #c42a2a) !important; }
+
+    /* Save */
+    .download-btn {
+      background: linear-gradient(135deg, var(--gold), #b8863a);
+      border: none; border-radius: 10px;
+      padding: 0.65rem; color: var(--dark);
+      font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      width: 100%;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.05em;
+    }
+    .download-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .gallery-btn {
+      background: var(--card-bg);
+      border: 1px solid rgba(212,168,83,0.3);
+      border-radius: 10px;
+      padding: 0.5rem; color: var(--gold);
+      font-size: 0.75rem; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      width: 100%; margin-top: 0.4rem;
+      transition: background 0.2s;
+    }
+    .gallery-btn:hover { background: rgba(212,168,83,0.1); }
+
+    /* Frame indicator */
+    .frame-indicator {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.4rem;
+      letter-spacing: 0.06em;
+    }
+    .frame-indicator span { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <div class="shutter-flash" id="shutterFlash"></div>
+  <div class="countdown-overlay" id="countdownOverlay"></div>
+
+  <!-- NAV -->
+  <div class="top-nav">
+    <div class="nav-left">
+      <button class="back-btn" onclick="window.location.href='index.html'">← back</button>
+      <span class="booth-logo">lovefilm</span>
+    </div>
+    <div class="layout-tabs">
+      <button class="layout-tab active" onclick="setLayout('strip', this)">STRIP</button>
+      <button class="layout-tab" onclick="setLayout('grid', this)">GRID</button>
+      <button class="layout-tab" onclick="setLayout('polaroid', this)">POLAROID</button>
+      <button class="layout-tab" onclick="setLayout('duo', this)">DUO</button>
+    </div>
+    <div style="width:120px"></div>
+  </div>
+
+  <div class="booth-main">
+
+    <!-- LEFT TOOLS -->
+    <div class="tools-panel">
+      <button class="tool-btn active" id="tool-camera" onclick="setTool('camera')">📷<span class="tooltip">Camera</span></button>
+      <button class="tool-btn" id="tool-sticker" onclick="setTool('sticker')">🎀<span class="tooltip">Stickers</span></button>
+      <button class="tool-btn" id="tool-doodle" onclick="setTool('doodle')">✏️<span class="tooltip">Doodle</span></button>
+      <button class="tool-btn" id="tool-text" onclick="setTool('text')">𝐓<span class="tooltip">Text</span></button>
+      <div class="tool-divider"></div>
+      <button class="tool-btn" onclick="clearOverlays()">🗑️<span class="tooltip">Clear</span></button>
+    </div>
+
+    <!-- CENTER -->
+    <div class="camera-area" id="cameraArea">
+
+      <div class="film-strip-layout" id="filmStrip">
+        <div class="film-holes-row" id="topHoles">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="frames-container" id="framesContainer">
+          <!-- frames injected by JS -->
+        </div>
+        <div class="film-holes-row" id="bottomHoles">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="capture-area">
+        <button class="action-btn" id="timerBtn" onclick="toggleTimer()">⏱ timer</button>
+        <button class="capture-btn" onclick="capturePhoto()">📸</button>
+        <button class="action-btn" onclick="retakeAll()">↺ retake</button>
+      </div>
+
+      <div class="frame-indicator">frame <span id="frameNum">1</span> of <span id="frameTotal">3</span></div>
+
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <div class="panel-section">
+        <div class="panel-section-title">✨ Filters</div>
+        <div class="filter-grid">
+          <button class="filter-btn active" onclick="setFilter('none',this)"><div class="f-preview"></div><span>NONE</span></button>
+          <button class="filter-btn" onclick="setFilter('vintage',this)"><div class="f-preview vintage"></div><span>VINTAGE</span></button>
+          <button class="filter-btn" onclick="setFilter('velvet',this)"><div class="f-preview velvet"></div><span>VELVET</span></button>
+          <button class="filter-btn" onclick="setFilter('bloom',this)"><div class="f-preview bloom"></div><span>BLOOM</span></button>
+          <button class="filter-btn" onclick="setFilter('noir',this)"><div class="f-preview noir"></div><span>NOIR</span></button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">🎀 Stickers</div>
+        <div class="sticker-grid">
+          <div class="sticker-item" onclick="spawnSticker('🎀')">🎀</div>
+          <div class="sticker-item" onclick="spawnSticker('🌸')">🌸</div>
+          <div class="sticker-item" onclick="spawnSticker('🤍')">🤍</div>
+          <div class="sticker-item" onclick="spawnSticker('🌷')">🌷</div>
+          <div class="sticker-item" onclick="spawnSticker('✨')">✨</div>
+          <div class="sticker-item" onclick="spawnSticker('🌙')">🌙</div>
+          <div class="sticker-item" onclick="spawnSticker('💫')">💫</div>
+          <div class="sticker-item" onclick="spawnSticker('🦋')">🦋</div>
+          <div class="sticker-item" onclick="spawnSticker('🌹')">🌹</div>
+          <div class="sticker-item" onclick="spawnSticker('💝')">💝</div>
+          <div class="sticker-item" onclick="spawnSticker('🪷')">🪷</div>
+          <div class="sticker-item" onclick="spawnSticker('⭐')">⭐</div>
+          <div class="sticker-item" onclick="spawnSticker('🍓')">🍓</div>
+          <div class="sticker-item" onclick="spawnSticker('🎠')">🎠</div>
+          <div class="sticker-item" onclick="spawnSticker('🌺')">🌺</div>
+          <div class="sticker-item" onclick="spawnSticker('💖')">💖</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">✏️ Doodle</div>
+        <div class="doodle-tools">
+          <div class="color-row">
+            <div class="color-dot active" style="background:#ffffff" onclick="setColor('#ffffff',this)"></div>
+            <div class="color-dot" style="background:#c17b82" onclick="setColor('#c17b82',this)"></div>
+            <div class="color-dot" style="background:#d4a853" onclick="setColor('#d4a853',this)"></div>
+            <div class="color-dot" style="background:#f2dada" onclick="setColor('#f2dada',this)"></div>
+            <div class="color-dot" style="background:#8b4a52" onclick="setColor('#8b4a52',this)"></div>
+            <div class="color-dot" style="background:#000000" onclick="setColor('#000000',this)"></div>
+            <div class="color-dot" style="background:#c5d5e8" onclick="setColor('#c5d5e8',this)"></div>
+            <div class="color-dot" style="background:#b8e0d4" onclick="setColor('#b8e0d4',this)"></div>
+          </div>
+          <div class="brush-row">
+            <span style="font-size:0.65rem;color:rgba(255,255,255,0.4)">size</span>
+            <button class="brush-btn active" onclick="setBrush(2,this)">S</button>
+            <button class="brush-btn" onclick="setBrush(5,this)">M</button>
+            <button class="brush-btn" onclick="setBrush(10,this)">L</button>
+            <button class="brush-btn" onclick="setBrush(20,this)">XL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">𝐓 Text</div>
+        <div class="text-tool">
+          <input class="text-input" id="textInput" placeholder="type something cute..."/>
+          <div class="font-row">
+            <button class="font-btn active" onclick="setFont('DM Sans',this)">Sans</button>
+            <button class="font-btn" onclick="setFont('Playfair Display',this)">Serif</button>
+            <button class="font-btn" onclick="setFont('Cormorant Garamond',this)">Italic</button>
+          </div>
+          <button class="add-text-btn" onclick="spawnText()">+ add to photo</button>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">🎨 Frame Themes</div>
+        <div class="theme-grid">
+
+          <button class="theme-btn active" onclick="setTheme('classic',this)">
+            <div class="theme-preview" style="background:#1a0f14;border:1px solid rgba(255,255,255,0.1)">🖤</div>
+            <span>CLASSIC</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('coquette',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#f9e0e8,#f2c4d0);color:#8b4a52">🎀</div>
+            <span>COQUETTE</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('vintage',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#e8d5b0,#c8a87a);color:#5a3e1b">📜</div>
+            <span>VINTAGE</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('dreamy',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#2d1b4e,#4a2070)">💜</div>
+            <span>DREAMY</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('noir',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#0a0a0a,#2a2a2a);border:1px solid rgba(255,255,255,0.1)">🖤🤍</div>
+            <span>NOIR</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('botanical',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#1a2e1a,#2d4a2d)">🌿</div>
+            <span>BOTANICAL</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('glam',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#2a1f0a,#4a3510)">✨</div>
+            <span>GLAM</span>
+          </button>
+
+          <button class="theme-btn" onclick="setTheme('sweet',this)">
+            <div class="theme-preview" style="background:linear-gradient(135deg,#8b1a1a,#c42a2a)">🍓</div>
+            <span>SWEET</span>
+          </button>
+
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="panel-section-title">💾 Save</div>
+        <button class="download-btn" onclick="downloadStrip()">✦ download strip</button>
+        <button class="gallery-btn" onclick="window.location.href='gallery.html'">🖼 view gallery</button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // ── STATE ──
+  let currentFilter = 'none';
+  let currentTool   = 'camera';
+  let currentColor  = '#ffffff';
+  let currentBrush  = 2;
+  let currentFont   = 'DM Sans';
+  let useTimer      = false;
+  let currentLayout = 'strip';
+  let frameCount    = 3;
+  let capturedCount = 0;
+  let isDrawing     = false;
+  let drawStart     = null;
+
+  // Layout configs: { frames, frameClass, showFilmHoles }
+  const LAYOUTS = {
+    strip:    { frames: 3, cls: 'strip-frame',    holes: true  },
+    grid:     { frames: 4, cls: 'grid-frame',     holes: false },
+    polaroid: { frames: 1, cls: 'polaroid-frame', holes: false },
+    duo:      { frames: 2, cls: 'duo-frame',      holes: false },
+  };
+
+  // ── INIT ──
+  let stream = null;
+  let videos = [];
+
+  async function initCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      buildFrames(currentLayout);
+    } catch(e) {
+      console.warn('Camera error:', e);
+      buildFrames(currentLayout);
+    }
+  }
+
+  function buildFrames(layout) {
+    const cfg = LAYOUTS[layout];
+    frameCount    = cfg.frames;
+    capturedCount = 0;
+    videos        = [];
+    document.getElementById('frameNum').textContent   = 1;
+    document.getElementById('frameTotal').textContent = frameCount;
+
+    const container = document.getElementById('framesContainer');
+    container.innerHTML = '';
+    container.className = 'frames-container';
+    if (layout === 'grid') container.classList.add('grid-layout');
+    if (layout === 'duo')  container.classList.add('duo-layout');
+
+    // Film holes only for strip
+    document.getElementById('topHoles').style.display    = layout === 'strip' ? 'flex' : 'none';
+    document.getElementById('bottomHoles').style.display = layout === 'strip' ? 'flex' : 'none';
+    document.getElementById('filmStrip').style.background = layout === 'strip' ? '#1a0f14' : 'transparent';
+    document.getElementById('filmStrip').style.padding    = layout === 'strip' ? '0.5rem 0.6rem' : '0';
+    document.getElementById('filmStrip').style.boxShadow  = layout === 'strip' ? '0 12px 40px rgba(0,0,0,0.5)' : 'none';
+
+    for (let i = 0; i < frameCount; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'frame-slot ' + cfg.cls;
+      slot.id = 'slot-' + i;
+
+      // polaroid bottom white strip
+      if (layout === 'polaroid') {
+        slot.style.paddingBottom = '40px';
+        slot.style.background = 'white';
+        slot.style.borderRadius = '4px';
+      }
+
+      const vid = document.createElement('video');
+      vid.autoplay = true;
+      vid.playsInline = true;
+      vid.muted = true;
+      vid.style.width = '100%';
+      vid.style.height = '100%';
+      vid.style.objectFit = 'cover';
+      vid.style.display = 'block';
+      vid.style.transform = 'scaleX(-1)'; // mirror fix!!
+      if (stream) vid.srcObject = stream;
+      applyFilterToEl(vid, currentFilter);
+      videos.push(vid);
+
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.className = 'snap-canvas';
+      snapCanvas.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;display:none;object-fit:cover;';
+
+      slot.appendChild(vid);
+      slot.appendChild(snapCanvas);
+      container.appendChild(slot);
+    }
+  }
+
+  function applyFilterToEl(el, f) {
+    const filters = {
+      none:    '',
+      vintage: 'sepia(0.6) contrast(1.1) brightness(0.95)',
+      velvet:  'saturate(1.4) contrast(1.15) brightness(0.9) hue-rotate(340deg)',
+      bloom:   'brightness(1.1) saturate(0.9) contrast(0.95)',
+      noir:    'grayscale(1) contrast(1.2) brightness(0.9)',
+    };
+    el.style.filter = filters[f] || '';
+  }
+
+  // ── LAYOUT ──
+  function setLayout(l, btn) {
+    currentLayout = l;
+    document.querySelectorAll('.layout-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    buildFrames(l);
+  }
+
+  // ── FILTER ──
+  function setFilter(f, btn) {
+    currentFilter = f;
+    videos.forEach(v => applyFilterToEl(v, f));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // ── TOOL ──
+  function setTool(t) {
+    currentTool = t;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tool-' + t)?.classList.add('active');
+  }
+
+  // ── CAPTURE ──
+  function capturePhoto() {
+    if (capturedCount >= frameCount) return;
+    if (useTimer) {
+      let c = 3;
+      const ov = document.getElementById('countdownOverlay');
+      ov.style.opacity = 1;
+      ov.textContent = c;
+      const iv = setInterval(() => {
+        c--;
+        if (c <= 0) {
+          clearInterval(iv);
+          ov.style.opacity = 0;
+          doSnap();
+        } else {
+          ov.textContent = c;
+        }
+      }, 1000);
+    } else {
+      doSnap();
+    }
+  }
+
+  function doSnap() {
+    // Flash
+    const flash = document.getElementById('shutterFlash');
+    flash.classList.add('flash');
+    setTimeout(() => flash.classList.remove('flash'), 150);
+
+    const slot = document.getElementById('slot-' + capturedCount);
+    if (!slot) return;
+    const vid  = slot.querySelector('video');
+    const snap = slot.querySelector('canvas');
+
+    snap.width  = vid.videoWidth  || vid.offsetWidth;
+    snap.height = vid.videoHeight || vid.offsetHeight;
+    const sctx  = snap.getContext('2d');
+
+    // Mirror fix — flip horizontally when drawing to canvas
+    sctx.translate(snap.width, 0);
+    sctx.scale(-1, 1);
+    sctx.filter = vid.style.filter || 'none';
+    sctx.drawImage(vid, 0, 0, snap.width, snap.height);
+    sctx.setTransform(1, 0, 0, 1, 0, 0);
+    sctx.filter = 'none';
+
+    snap.style.display = 'block';
+    vid.style.display  = 'none';
+
+    capturedCount++;
+    document.getElementById('frameNum').textContent = Math.min(capturedCount + 1, frameCount);
+
+    // Save to localStorage for gallery
+    try {
+      const existing = JSON.parse(localStorage.getItem('lovefilm_gallery') || '[]');
+      existing.unshift({ src: snap.toDataURL('image/jpeg', 0.85), date: new Date().toISOString() });
+      localStorage.setItem('lovefilm_gallery', JSON.stringify(existing.slice(0, 50)));
+    } catch(e) {}
+  }
+
+  // ── RETAKE ──
+  function retakeAll() {
+    buildFrames(currentLayout);
+    clearOverlays();
+  }
+
+  // ── TIMER ──
+  function toggleTimer() {
+    useTimer = !useTimer;
+    const btn = document.getElementById('timerBtn');
+    btn.classList.toggle('active-timer', useTimer);
+  }
+
+  // ── DRAGGABLE STICKERS ──
+  function spawnSticker(emoji) {
+    const area = document.getElementById('cameraArea');
+    const el   = document.createElement('div');
+    el.className = 'overlay-item';
+    el.textContent = emoji;
+    el.style.left = '45%';
+    el.style.top  = '40%';
+    makeDraggable(el);
+    area.appendChild(el);
+  }
+
+  // ── DRAGGABLE TEXT ──
+  function spawnText() {
+    const val = document.getElementById('textInput').value.trim();
+    if (!val) return;
+    const area = document.getElementById('cameraArea');
+    const el   = document.createElement('div');
+    el.className = 'overlay-item text-item';
+    el.textContent = val;
+    el.style.fontFamily = currentFont;
+    el.style.color      = currentColor;
+    el.style.left = '35%';
+    el.style.top  = '50%';
+    makeDraggable(el);
+    area.appendChild(el);
+    document.getElementById('textInput').value = '';
+  }
+
+  function makeDraggable(el) {
+    let ox = 0, oy = 0, sx = 0, sy = 0;
+    el.addEventListener('mousedown', e => {
+      e.preventDefault();
+      sx = e.clientX; sy = e.clientY;
+      ox = el.offsetLeft; oy = el.offsetTop;
+      const onMove = ev => {
+        el.style.left = (ox + ev.clientX - sx) + 'px';
+        el.style.top  = (oy + ev.clientY - sy) + 'px';
+      };
+      const onUp = () => {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+    // double click to delete
+    el.addEventListener('dblclick', () => el.remove());
+  }
+
+  // ── CLEAR ──
+  function clearOverlays() {
+    document.querySelectorAll('.overlay-item').forEach(el => el.remove());
+  }
+
+  // ── DOWNLOAD STRIP ──
+  function downloadStrip() {
+    const slots = document.querySelectorAll('.frame-slot');
+    if (!slots.length) return;
+
+    const first = slots[0];
+    const fw = first.offsetWidth;
+    const fh = first.offsetHeight;
+    const gap = 6;
+    const pad = 16;
+    const isStrip = currentLayout === 'strip';
+    const isGrid  = currentLayout === 'grid';
+
+    let cw, ch;
+    if (isStrip) {
+      cw = fw + pad * 2 + 20;
+      ch = (fh * frameCount) + (gap * (frameCount - 1)) + pad * 2 + 40;
+    } else if (isGrid) {
+      cw = fw * 2 + gap + pad * 2;
+      ch = fh * 2 + gap + pad * 2;
+    } else {
+      cw = fw * frameCount + gap * (frameCount - 1) + pad * 2;
+      ch = fh + pad * 2;
+    }
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width  = cw;
+    offscreen.height = ch;
+    const octx = offscreen.getContext('2d');
+
+    // Background
+    if (isStrip) {
+      octx.fillStyle = '#1a0f14';
+      octx.fillRect(0, 0, cw, ch);
+      // Film holes
+      octx.fillStyle = '#faf6f1';
+      for (let i = 0; i < 6; i++) {
+        const hx = pad + (i * (fw / 5));
+        octx.fillRect(hx, 6, 10, 10);
+        octx.fillRect(hx, ch - 16, 10, 10);
+      }
+    } else if (currentLayout === 'polaroid') {
+      octx.fillStyle = 'white';
+      octx.fillRect(0, 0, cw, ch);
+    } else {
+      octx.fillStyle = '#1a0f14';
+      octx.fillRect(0, 0, cw, ch);
+    }
+
+    slots.forEach((slot, i) => {
+      const snap = slot.querySelector('canvas.snap-canvas');
+      const vid  = slot.querySelector('video');
+      let x, y;
+
+      if (isStrip) {
+        x = pad + 10;
+        y = pad + 20 + i * (fh + gap);
+      } else if (isGrid) {
+        x = pad + (i % 2) * (fw + gap);
+        y = pad + Math.floor(i / 2) * (fh + gap);
+      } else {
+        x = pad + i * (fw + gap);
+        y = pad;
+      }
+
+      if (snap && snap.width > 0) {
+        octx.drawImage(snap, x, y, fw, fh);
+      } else {
+        octx.fillStyle = '#2a1a1f';
+        octx.fillRect(x, y, fw, fh);
+      }
+    });
+
+    // Watermark
+    octx.fillStyle = 'rgba(255,255,255,0.3)';
+    octx.font = '11px "Cormorant Garamond", serif';
+    octx.textAlign = 'center';
+    octx.fillText('lovefilm ✦', cw / 2, ch - 6);
+
+    const link = document.createElement('a');
+    link.download = 'lovefilm-' + Date.now() + '.png';
+    link.href = offscreen.toDataURL('image/png');
+    link.click();
+  }
+
+  // ── THEME ──
+  const THEMES = {
+    classic:   { bg: '#1a0f14',                                          holes: 'rgba(250,246,241,0.85)', border: 'none',                         holeColor: '#faf6f1' },
+    coquette:  { bg: 'linear-gradient(135deg,#f9e0e8,#f2c4d0)',          holes: '#c17b82',                border: '2px solid #e8a0b0',            holeColor: '#c17b82' },
+    vintage:   { bg: 'linear-gradient(135deg,#e8d5b0,#c8a87a)',          holes: '#8b6340',                border: '2px solid #a07840',            holeColor: '#5a3e1b' },
+    dreamy:    { bg: 'linear-gradient(135deg,#2d1b4e,#4a2070)',          holes: '#c084fc',                border: '2px solid #7c3aed',            holeColor: '#c084fc' },
+    noir:      { bg: 'linear-gradient(135deg,#0a0a0a,#2a2a2a)',          holes: 'rgba(255,255,255,0.7)',   border: '2px solid rgba(255,255,255,0.15)', holeColor: 'white'   },
+    botanical: { bg: 'linear-gradient(135deg,#1a2e1a,#2d4a2d)',          holes: '#86efac',                border: '2px solid #4ade80',            holeColor: '#86efac' },
+    glam:      { bg: 'linear-gradient(135deg,#2a1f0a,#4a3510)',          holes: '#d4a853',                border: '2px solid #d4a853',            holeColor: '#d4a853' },
+    sweet:     { bg: 'linear-gradient(135deg,#8b1a1a,#c42a2a)',          holes: 'white',                  border: '2px solid #ff6b6b',            holeColor: 'white'   },
+  };
+
+  let currentTheme = 'classic';
+
+  function setTheme(theme, btn) {
+    currentTheme = theme;
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cfg = THEMES[theme];
+    const strip = document.getElementById('filmStrip');
+
+    // Apply background
+    if (currentLayout === 'strip') {
+      strip.style.background = cfg.bg;
+      strip.style.border     = cfg.border;
+    }
+
+    // Apply hole colors
+    document.querySelectorAll('.film-holes-row span').forEach(h => {
+      h.style.background = cfg.holeColor;
+    });
+
+    // Apply frame borders
+    document.querySelectorAll('.frame-slot').forEach(slot => {
+      slot.style.border = cfg.border;
+    });
+  }
+
+  // ── THEME ──
+  function setColor(c, el) {
+    currentColor = c;
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function setBrush(s, el) {
+    currentBrush = s;
+    document.querySelectorAll('.brush-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  function setFont(f, el) {
+    currentFont = f;
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── START ──
+  initCamera();
+</script>
+</body>
+</html>
